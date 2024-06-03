@@ -16,6 +16,9 @@ const Navbar = () => {
           <Link as={RouterLink} to="/about" color="white" px={2}>
             About
           </Link>
+          <Link as={RouterLink} to="/drinks-manager" color="white" px={2}>
+            Drinks Manager
+          </Link>
         </Flex>
       </Flex>
     </Box>
