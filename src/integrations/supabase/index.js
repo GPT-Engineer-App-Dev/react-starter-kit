@@ -19,46 +19,92 @@ const fromSupabase = async (query) => {
 
 /* supabase integration types
 
-// EXAMPLE TYPES SECTION
-// DO NOT USE TYPESCRIPT
-
-Foo // table: foos
+Dishes // table: dishes
     id: number
-    title: string
+    created_at: string
+    name: string
+    country: string
+    size: string
+    type: string
+    price: number
 
-Bar // table: bars
+Drinks // table: drinks
     id: number
-    foo_id: number // foreign key to Foo
-	
+    created_at: string
+    name: string
+    percentage: number
+    country: string
+
 */
 
-// Example hook for models
+// Hooks for Dishes table
+export const useDishes = () => useQuery({
+    queryKey: ['dishes'],
+    queryFn: () => fromSupabase(supabase.from('dishes').select('*')),
+});
 
-export const useFoo = ()=> useQuery({
-    queryKey: ['foo'],
-    queryFn: fromSupabase(supabase.from('foo')),
-})
-export const useAddFoo = () => {
+export const useAddDish = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (newFoo)=> fromSupabase(supabase.from('foo').insert([{ title: newFoo.title }])),
-        onSuccess: ()=> {
-            queryClient.invalidateQueries('foo');
+        mutationFn: (newDish) => fromSupabase(supabase.from('dishes').insert([newDish])),
+        onSuccess: () => {
+            queryClient.invalidateQueries('dishes');
         },
     });
 };
 
-export const useBar = ()=> useQuery({
-    queryKey: ['bar'],
-    queryFn: fromSupabase(supabase.from('bar')),
-})
-export const useAddBar = () => {
+export const useUpdateDish = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (newBar)=> fromSupabase(supabase.from('bar').insert([{ foo_id: newBar.foo_id }])),
-        onSuccess: ()=> {
-            queryClient.invalidateQueries('bar');
+        mutationFn: (updatedDish) => fromSupabase(supabase.from('dishes').update(updatedDish).eq('id', updatedDish.id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('dishes');
         },
     });
 };
 
+export const useDeleteDish = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (id) => fromSupabase(supabase.from('dishes').delete().eq('id', id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('dishes');
+        },
+    });
+};
+
+// Hooks for Drinks table
+export const useDrinks = () => useQuery({
+    queryKey: ['drinks'],
+    queryFn: () => fromSupabase(supabase.from('drinks').select('*')),
+});
+
+export const useAddDrink = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (newDrink) => fromSupabase(supabase.from('drinks').insert([newDrink])),
+        onSuccess: () => {
+            queryClient.invalidateQueries('drinks');
+        },
+    });
+};
+
+export const useUpdateDrink = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (updatedDrink) => fromSupabase(supabase.from('drinks').update(updatedDrink).eq('id', updatedDrink.id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('drinks');
+        },
+    });
+};
+
+export const useDeleteDrink = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (id) => fromSupabase(supabase.from('drinks').delete().eq('id', id)),
+        onSuccess: () => {
+            queryClient.invalidateQueries('drinks');
+        },
+    });
+};
