@@ -16,15 +16,19 @@ const DrinksManager = () => {
     setFormState((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editState) {
-      updateDrinkMutation.mutate({ ...formState, id: editState });
-    } else {
-      addDrinkMutation.mutate(formState);
+    try {
+      if (editState) {
+        await updateDrinkMutation.mutateAsync({ ...formState, id: editState });
+      } else {
+        await addDrinkMutation.mutateAsync(formState);
+      }
+      setFormState({ name: "", percentage: "", country: "" });
+      setEditState(null);
+    } catch (error) {
+      console.error("Error submitting form:", error);
     }
-    setFormState({ name: "", percentage: "", country: "" });
-    setEditState(null);
   };
 
   const handleEdit = (drink) => {
@@ -32,28 +36,32 @@ const DrinksManager = () => {
     setEditState(drink.id);
   };
 
-  const handleDelete = (id) => {
-    deleteDrinkMutation.mutate(id);
+  const handleDelete = async (id) => {
+    try {
+      await deleteDrinkMutation.mutateAsync(id);
+    } catch (error) {
+      console.error("Error deleting drink:", error);
+    }
   };
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error loading drinks</div>;
+  if (isLoading) return <Box>Loading...</Box>;
+  if (isError) return <Box>Error loading drinks</Box>;
 
   return (
     <Container maxW="container.md" py={4}>
       <Box as="form" onSubmit={handleSubmit} mb={4}>
         <VStack spacing={4}>
-          <FormControl id="name">
+          <FormControl id="name" isRequired>
             <FormLabel>Name</FormLabel>
-            <Input name="name" value={formState.name} onChange={handleChange} required />
+            <Input name="name" value={formState.name} onChange={handleChange} />
           </FormControl>
-          <FormControl id="percentage">
+          <FormControl id="percentage" isRequired>
             <FormLabel>Percentage</FormLabel>
-            <Input name="percentage" value={formState.percentage} onChange={handleChange} required />
+            <Input name="percentage" value={formState.percentage} onChange={handleChange} />
           </FormControl>
-          <FormControl id="country">
+          <FormControl id="country" isRequired>
             <FormLabel>Country</FormLabel>
-            <Input name="country" value={formState.country} onChange={handleChange} required />
+            <Input name="country" value={formState.country} onChange={handleChange} />
           </FormControl>
           <Button type="submit" colorScheme="teal">
             {editState ? "Update Drink" : "Add Drink"}
@@ -61,33 +69,37 @@ const DrinksManager = () => {
         </VStack>
       </Box>
 
-      <Table variant="simple">
-        <Thead>
-          <Tr>
-            <Th>Name</Th>
-            <Th>Percentage</Th>
-            <Th>Country</Th>
-            <Th>Actions</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {drinks.map((drink) => (
-            <Tr key={drink.id}>
-              <Td>{drink.name}</Td>
-              <Td>{drink.percentage}</Td>
-              <Td>{drink.country}</Td>
-              <Td>
-                <Button size="sm" onClick={() => handleEdit(drink)} mr={2}>
-                  Edit
-                </Button>
-                <Button size="sm" colorScheme="red" onClick={() => handleDelete(drink.id)}>
-                  Delete
-                </Button>
-              </Td>
+      {drinks && drinks.length > 0 ? (
+        <Table variant="simple">
+          <Thead>
+            <Tr>
+              <Th>Name</Th>
+              <Th>Percentage</Th>
+              <Th>Country</Th>
+              <Th>Actions</Th>
             </Tr>
-          ))}
-        </Tbody>
-      </Table>
+          </Thead>
+          <Tbody>
+            {drinks.map((drink) => (
+              <Tr key={drink.id}>
+                <Td>{drink.name}</Td>
+                <Td>{drink.percentage}</Td>
+                <Td>{drink.country}</Td>
+                <Td>
+                  <Button size="sm" onClick={() => handleEdit(drink)} mr={2}>
+                    Edit
+                  </Button>
+                  <Button size="sm" colorScheme="red" onClick={() => handleDelete(drink.id)}>
+                    Delete
+                  </Button>
+                </Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+      ) : (
+        <Box>No drinks available</Box>
+      )}
     </Container>
   );
 };
